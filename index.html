@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WP3 Species Distribution Models</title>
+  <title>WP3 Species Distribution Models (PNG)</title>
   <style>
     :root {
       --blue-dark:   #0068B4;
       --blue-mid:    #00A6D9;
       --blue-light:  #7DD9EE;
-      --blue-pale:   #303030;
-      --blue-paler:  #282828;
+      --blue-pale:   #D6F0F8;
+      --blue-paler:  #EBF7FC;
       --green-teal:  #00B388;
       --green-lime:  #8DC63F;
-      --text-dark:   #e0e0e0;
-      --text-mid:    #9ab0bb;
-      --white:       #242424;
-      --flag-green:  #4ecb7a;
-      --flag-yellow: #e09a2a;
-      --border:      #484848;
+      --text-dark:   #1A3A4A;
+      --text-mid:    #2C5F7A;
+      --white:       #FFFFFF;
+      --flag-green:  #2EA85A;
+      --flag-yellow: #C97A08;
+      --border:      #B8DDF0;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -235,16 +235,48 @@
     .pdf-container {
       flex: 1;
       overflow: hidden;
-      background: #282828;
+      background: #EBF7FC;
       position: relative;
     }
 
-    #pdf-embed {
+    #img-viewport {
       width: 100%;
       height: 100%;
-      border: none;
+      overflow: hidden;
+      cursor: grab;
+      position: relative;
+      background: #ffffff;
+    }
+
+    #img-viewport.grabbing { cursor: grabbing; }
+
+    #map-img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform-origin: 0 0;
+      user-select: none;
+      -webkit-user-drag: none;
       display: none;
     }
+
+    #zoom-reset {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      z-index: 10;
+      padding: 5px 12px;
+      background: rgba(255,255,255,0.85);
+      color: #1A3A4A;
+      border: 1px solid #B8DDF0;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      display: none;
+    }
+
+    #zoom-reset:hover { background: #ffffff; color: #0068B4; border-color: #00A6D9; }
 
     .pdf-placeholder {
       position: absolute;
@@ -254,12 +286,12 @@
       align-items: center;
       justify-content: center;
       background: var(--blue-paler);
-      color: rgba(255,255,255,0.55);
+      color: var(--text-mid);
       gap: 14px;
     }
 
     .pdf-placeholder svg {
-      opacity: 0.5;
+      opacity: 0.3;
     }
 
     .pdf-placeholder p {
@@ -272,10 +304,10 @@
     .map-description {
       flex-shrink: 0;
       padding: 9px 16px;
-      background: #303030;
-      border-bottom: 1px solid #484848;
+      background: #E0F4FA;
+      border-bottom: 1px solid #B8DDF0;
       font-size: 12px;
-      color: #9ab0bb;
+      color: #2C5F7A;
       line-height: 1.55;
     }
 
@@ -297,7 +329,7 @@
     }
 
     .map-description strong {
-      color: #c8d8e0;
+      color: #1A3A4A;
     }
 /* ── RIGHT PANEL ── */
     .right-panel {
@@ -358,9 +390,9 @@
       border-radius: 50%;
     }
 
-    .flag-badge.green  { background: #1a3328; color: var(--flag-green); }
+    .flag-badge.green  { background: #E4F7EC; color: var(--flag-green); }
     .flag-badge.green .badge-dot  { background: var(--flag-green); }
-    .flag-badge.yellow { background: #312810; color: var(--flag-yellow); }
+    .flag-badge.yellow { background: #FFF3DC; color: var(--flag-yellow); }
     .flag-badge.yellow .badge-dot { background: var(--flag-yellow); }
 
     .info-row {
@@ -399,12 +431,12 @@
     .info-comment {
       margin-top: 14px;
       padding: 9px 10px;
-      background: #2a2418;
+      background: #FFF8EC;
       border-left: 3px solid var(--flag-yellow);
       border-radius: 0 4px 4px 0;
       font-size: 12.5px;
       font-style: italic;
-      color: #c9a870;
+      color: #5A400E;
       line-height: 1.55;
     }
   </style>
@@ -437,12 +469,12 @@
   <!-- CENTRE PANEL -->
   <div class="centre-panel">
     <div class="map-tabs">
-      <button class="map-tab active" data-map="binary_strict_pdf">Binary (strict)</button>
-      <button class="map-tab" data-map="binary_pdf">Binary</button>
-      <button class="map-tab" data-map="binary_confidence_pdf">Binary (confidence)</button>
-      <button class="map-tab" data-map="delta_pdf">Delta</button>
-      <button class="map-tab" data-map="probability_pdf">Probability</button>
-      <button class="map-tab" data-map="confidence_pdf">Confidence</button>
+      <button class="map-tab active" data-map="binary_strict_png">Binary (strict)</button>
+      <button class="map-tab" data-map="binary_png">Binary</button>
+      <button class="map-tab" data-map="binary_confidence_png">Binary (confidence)</button>
+      <button class="map-tab" data-map="delta_png">Delta</button>
+      <button class="map-tab" data-map="probability_png">Probability</button>
+      <button class="map-tab" data-map="confidence_png">Confidence</button>
         </div>
     <div id="map-description" class="map-description"></div>
     <div class="pdf-container">
@@ -455,7 +487,10 @@
         </svg>
         <p>Select a species to view its distribution map</p>
       </div>
-      <embed id="pdf-embed" type="application/pdf">
+      <div id="img-viewport">
+        <img id="map-img" alt="">
+        <button id="zoom-reset" title="Reset zoom">Reset zoom</button>
+      </div>
     </div>
   </div>
 
@@ -474,17 +509,17 @@
 
 
   const MAP_DESCRIPTIONS = {
-    binary_strict_pdf: "- Likely unsuitable - areas with probabilities predicted below the presence threshold.\n- Possibly suitable - areas with probabilities above the presence threshold, but with confidence values below 50 and probabilities below the mid-point of the minimum and maximum predicted presence probabilities.\n- Likely suitable - areas with probabilities above the presence threshold, but with either confidence values below 50 OR probabilities below the mid-point of the minimum and maximum predicted presence probabilities.\n- Very likely suitable - areas with probabilities above the presence threshold and with both confidence values above 50 and probabilities above the mid-point of the minimum and maximum predicted presence probabilities.",
-    binary_pdf: "- Unsuitable - areas with probabilities below the presence threshold.\n- Suitable - areas with probabilities above the presence threshold.",
-    binary_confidence_pdf: "- Unsuitable (high confidence) - areas with probabilities below the presence threshold and with confidence scores above 50.\n- Unsuitable (low confidence) - areas with probabilities below the presence threshold but with confidence scores below 50.\n- Suitable (low confidence) - areas with probabilities above the presence threshold but with confidence scores below 50.\n- Suitable (high confidence) - areas with probabilities above the presence threshold and with confidence scores above 50.",
-    delta_pdf: "The scale represents relative probabilities above the presence threshold. Areas with a value of zero represent areas below the presence threshold. Areas with a value of 1 represent the lower probability above the presence threshold. Areas with a value of 100 represent the highest probability above the presence threshold.",
-    probability_pdf: "The scale represents predicted probability outputs from the ensemble species distribution model.",
-    confidence_pdf: "The scale represents model confidence measured as agreement between members of the ensemble species distribution model (committee averaging). A value of 100 indicates that all members predicted the same outcome (presence or absence). A value of 0 indicates maximum disagreement between the members (half of the members predicting presence and half predicting absence)."
+    binary_strict_png: "- Likely unsuitable - areas with probabilities predicted below the presence threshold.\n- Possibly suitable - areas with probabilities above the presence threshold, but with confidence values below 50 and probabilities below the mid-point of the minimum and maximum predicted presence probabilities.\n- Likely suitable - areas with probabilities above the presence threshold, but with either confidence values below 50 OR probabilities below the mid-point of the minimum and maximum predicted presence probabilities.\n- Very likely suitable - areas with probabilities above the presence threshold and with both confidence values above 50 and probabilities above the mid-point of the minimum and maximum predicted presence probabilities.",
+    binary_png: "- Unsuitable - areas with probabilities below the presence threshold.\n- Suitable - areas with probabilities above the presence threshold.",
+    binary_confidence_png: "- Unsuitable (high confidence) - areas with probabilities below the presence threshold and with confidence scores above 50.\n- Unsuitable (low confidence) - areas with probabilities below the presence threshold but with confidence scores below 50.\n- Suitable (low confidence) - areas with probabilities above the presence threshold but with confidence scores below 50.\n- Suitable (high confidence) - areas with probabilities above the presence threshold and with confidence scores above 50.",
+    delta_png: "The scale represents relative probabilities above the presence threshold. Areas with a value of zero represent areas below the presence threshold. Areas with a value of 1 represent the lowest probability above the presence threshold. Areas with a value of 100 represent the highest probability above the presence threshold.",
+    probability_png: "The scale represents predicted probability outputs from the ensemble species distribution model.",
+    confidence_png: "The scale represents model confidence measured as agreement between members of the ensemble species distribution model (committee averaging). A value of 100 indicates that all members predicted the same outcome (presence or absence). A value of 0 indicates maximum disagreement between the members (half of the members predicting presence and half predicting absence)."
   };
   const allSpecies = { fish: [], invertebrates: [], macrophytes: [] };
   let currentGroup = 'fish';
   let currentSpecies = null;
-  let currentMapType = 'binary_strict_pdf';
+  let currentMapType = 'binary_strict_png';
 
   // ── CSV parser (handles RFC 4180 quoted fields) ──────────────────────────────
   function parseCSV(text) {
@@ -568,17 +603,17 @@
     renderInfo();
   }
 
-  // ── Load PDF into embed ──────────────────────────────────────────────────────
+  // ── Load image ───────────────────────────────────────────────────────────────
   function loadPDF() {
     if (!currentSpecies) return;
     const src = 'models_post/outputs/' + currentSpecies.output_repo
-      + '/_pdfs/' + currentMapType
-      + '/' + currentSpecies.scientific_name + '.pdf'
-      + '#toolbar=0&navpanes=0&scrollbar=0';
-    const embed = document.getElementById('pdf-embed');
-    embed.src = src;
-    embed.style.display = 'block';
+      + '/_pngs/' + currentMapType
+      + '/' + currentSpecies.scientific_name + '.png';
+    const img = document.getElementById('map-img');
+    img.src = src;
+    img.style.display = 'block';
     document.getElementById('pdf-placeholder').style.display = 'none';
+    resetZoom();
   }
 
   // ── Render right panel ───────────────────────────────────────────────────────
@@ -673,6 +708,59 @@
     return isNaN(n) ? (s || '—') : n.toLocaleString();
   }
 
+
+  // ── Zoom & pan ────────────────────────────────────────────────────────────────
+  let zoomScale = 1, panX = 0, panY = 0;
+  let isDragging = false, dragStartX, dragStartY, panStartX, panStartY;
+
+  function applyTransform() {
+    const img = document.getElementById('map-img');
+    img.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoomScale + ')';
+    document.getElementById('zoom-reset').style.display = zoomScale > 1.01 ? 'block' : 'none';
+  }
+
+  function resetZoom() {
+    zoomScale = 1; panX = 0; panY = 0;
+    applyTransform();
+  }
+
+  function initZoomPan() {
+    const vp = document.getElementById('img-viewport');
+
+    vp.addEventListener('wheel', e => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+      const newScale = Math.min(8, Math.max(1, zoomScale * factor));
+      const rect = vp.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      panX = mx - (mx - panX) * (newScale / zoomScale);
+      panY = my - (my - panY) * (newScale / zoomScale);
+      zoomScale = newScale;
+      applyTransform();
+    }, { passive: false });
+
+    vp.addEventListener('mousedown', e => {
+      isDragging = true;
+      dragStartX = e.clientX; dragStartY = e.clientY;
+      panStartX = panX; panStartY = panY;
+      vp.classList.add('grabbing');
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      panX = panStartX + e.clientX - dragStartX;
+      panY = panStartY + e.clientY - dragStartY;
+      applyTransform();
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      document.getElementById('img-viewport').classList.remove('grabbing');
+    });
+
+    document.getElementById('zoom-reset').addEventListener('click', resetZoom);
+  }
   // ── Wire up tabs and search ───────────────────────────────────────────────────
   document.querySelectorAll('.group-tab').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -697,6 +785,7 @@
   document.getElementById('species-search').addEventListener('input', renderList);
 
   init();
+  initZoomPan();
 </script>
 </body>
 </html>

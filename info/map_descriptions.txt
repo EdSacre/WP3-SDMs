@@ -14,7 +14,7 @@ Binary (confidence):
 - Suitable (low confidence) - areas with probabilities above the presence threshold but with confidence scores below 50.
 - Suitable (high confidence) - areas with probabilities above the presence threshold and with confidence scores above 50.
 
-Delta: The scale represents relative probabilities above the presence threshold. Areas with a value of zero represent areas below the presence threshold. Areas with a value of 1 represent the lower probability above the presence threshold. Areas with a value of 100 represent the highest probability above the presence threshold.
+Delta: The scale represents relative probabilities above the presence threshold. Areas with a value of zero represent areas below the presence threshold. Areas with a value of 1 represent the lowest probability above the presence threshold. Areas with a value of 100 represent the highest probability above the presence threshold.
 
 Probability: The scale represents predicted probability outputs from the ensemble species distribution model.
 
