@@ -569,7 +569,8 @@
     }
     renderList();
     updateDescription();
-  }
+    const defaultSpecies = allSpecies['fish'].find(s => s.scientific_name === 'Abramis.brama');
+    if (defaultSpecies) selectSpecies(defaultSpecies);  }
 
   // ── Render species list ──────────────────────────────────────────────────────
   function renderList() {
@@ -607,7 +608,7 @@
   function loadPDF() {
     if (!currentSpecies) return;
     const src = 'models_post/outputs/' + currentSpecies.output_repo
-      + '/_pngs/' + currentMapType
+      + '/pngs/' + currentMapType
       + '/' + currentSpecies.scientific_name + '.png';
     const img = document.getElementById('map-img');
     img.src = src;
